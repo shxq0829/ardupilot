@@ -2,25 +2,23 @@
 
 /// @file	AP_MotorsTri.h
 /// @brief	Motor control class for Tricopters
+#pragma once
 
-#ifndef __AP_MOTORS_TRI_H__
-#define __AP_MOTORS_TRI_H__
-
-#include <AP_Common.h>
-#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
-#include <RC_Channel.h>     // RC Channel Library
-#include "AP_Motors.h"
+#include <AP_Common/AP_Common.h>
+#include <AP_Math/AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+#include <RC_Channel/RC_Channel.h>     // RC Channel Library
+#include "AP_MotorsMulticopter.h"
 
 // tail servo uses channel 7
 #define AP_MOTORS_CH_TRI_YAW    CH_7
 
 /// @class      AP_MotorsTri
-class AP_MotorsTri : public AP_Motors {
+class AP_MotorsTri : public AP_MotorsMulticopter {
 public:
 
     /// Constructor
     AP_MotorsTri(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
-        AP_Motors(loop_rate, speed_hz)
+        AP_MotorsMulticopter(loop_rate, speed_hz)
     {
         AP_Param::setup_object_defaults(this, var_info);
     };
@@ -64,5 +62,3 @@ protected:
     AP_Int16        _yaw_servo_min;                     // Minimum angle limit of yaw servo
     AP_Int16        _yaw_servo_max;                     // Maximum angle limit of yaw servo
 };
-
-#endif  // AP_MOTORSTRI

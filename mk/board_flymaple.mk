@@ -34,8 +34,8 @@ DEFINES         =   -DF_CPU=$(F_CPU) -DMCU_$(MCU) -DBOARD_$(BOARD) -DERROR_LED_P
 DEFINES        +=   -DSKETCH=\"$(SKETCH)\" -DAPM_BUILD_DIRECTORY=APM_BUILD_$(SKETCH)
 DEFINES        +=   $(EXTRAFLAGS)
 DEFINES        +=   -DCONFIG_HAL_BOARD=$(HAL_BOARD)
-WARNFLAGS       =   -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wno-psabi
-WARNFLAGS      +=   -Wwrite-strings -Wformat=2 
+WARNFLAGS       =   -Wall -Wextra -Wlogical-op -Wformat -Wshadow -Wpointer-arith -Wcast-align -Wno-psabi
+WARNFLAGS      +=   -Wwrite-strings -Wformat=2 -Wno-unused-parameter -Wno-redundant-decls
 WARNFLAGSCXX    =   -Wno-reorder
 DEPFLAGS        =   -MD -MT $@
 
@@ -68,18 +68,10 @@ CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS)
 ASFLAGS         =   $(CPUFLAGS) $(DEFINES) -x assembler-with-cpp 
 ASFLAGS        +=   $(ASOPTS)
 
-LDFLAGS         =   $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS) -mcpu=cortex-m3 -mthumb \
+LDFLAGS         =   $(CPUFLAGS) $(OPTFLAGS) -mcpu=cortex-m3 -mthumb \
            -Xlinker --gc-sections \
            -Xassembler --march=armv7-m -Wall 
 LDFLAGS        +=   -Wl,--gc-sections -Wl,-Map -Wl,$(SKETCHMAP) $(CPULDFLAGS)
-
-# under certain situations with certain avr-gcc versions the --relax flag causes
-# a bug. Give the user a way to disable this flag per-sketch.
-# I know this is a rotten hack but we're really close to sunset on AVR.
-EXCLUDE_RELAX := $(wildcard $(SRCROOT)/norelax.inoflag)
-ifeq ($(EXCLUDE_RELAX),)
-#  LDFLAGS      +=   -Wl,--relax
-endif
 
 LIBS = -lm
 
@@ -175,41 +167,7 @@ $(SKETCHEEP):	$(SKETCHELF)
 	$(RULEHDR)
 	$(v)$(OBJCOPY) -O ihex -j.eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 $< $@
 
-#
-# Build sketch objects
-#
-SKETCH_INCLUDES	=	$(SKETCHLIBINCLUDES) $(ARDUINOLIBINCLUDES) $(COREINCLUDES)
+SKETCH_INCLUDES        =       $(SKETCHLIBINCLUDES) $(ARDUINOLIBINCLUDES) $(COREINCLUDES)
+SLIB_INCLUDES  =       -I$(dir $<)/utility $(SKETCHLIBINCLUDES) $(ARDUINOLIBINCLUDES) $(COREINCLUDES)
 
-$(BUILDROOT)/%.o: $(BUILDROOT)/%.cpp
-	$(RULEHDR)
-	$(v)$(CXX) $(CXXFLAGS) -c -o $@ $< -I$(SRCROOT) $(SKETCH_INCLUDES)
-
-$(BUILDROOT)/%.o: $(SRCROOT)/%.cpp
-	$(RULEHDR)
-	$(v)$(CXX) $(CXXFLAGS) -c -o $@ $< $(SKETCH_INCLUDES)
-
-$(BUILDROOT)/%.o: $(SRCROOT)/%.c
-	$(RULEHDR)
-	$(v)$(CC) $(CFLAGS) -c -o $@ $< $(SKETCH_INCLUDES)
-
-$(BUILDROOT)/%.o: $(SRCROOT)/%.S
-	$(RULEHDR)
-	$(v)$(AS) $(ASFLAGS) -c -o $@ $< $(SKETCH_INCLUDES)
-
-#
-# Build library objects from sources in the sketchbook
-#
-SLIB_INCLUDES	=	-I$(dir $<)/utility $(SKETCHLIBINCLUDES) $(ARDUINOLIBINCLUDES) $(COREINCLUDES)
-
-$(BUILDROOT)/libraries/%.o: $(SKETCHBOOK)/libraries/%.cpp
-	$(RULEHDR)
-	$(v)$(CXX) $(CXXFLAGS) -c -o $@ $< $(SLIB_INCLUDES)
-
-$(BUILDROOT)/libraries/%.o: $(SKETCHBOOK)/libraries/%.c
-	$(RULEHDR)
-	$(v)$(CC) $(CFLAGS) -c -o $@ $< $(SLIB_INCLUDES)
-
-$(BUILDROOT)/libraries/%.o: $(SKETCHBOOK)/libraries/%.S
-	$(RULEHDR)
-	$(v)$(AS) $(ASFLAGS) -c -o $@ $< $(SLIB_INCLUDES)
-
+include $(MK_DIR)/build_rules.mk

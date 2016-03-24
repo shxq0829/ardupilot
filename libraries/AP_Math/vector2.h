@@ -28,9 +28,7 @@
 * © 2003, This code is provided "as is" and you can use it freely as long as
 * credit is given to Bill Perone in the application it is used in
 ****************************************/
-
-#ifndef VECTOR2_H
-#define VECTOR2_H
+#pragma once
 
 #include <math.h>
 
@@ -105,6 +103,9 @@ struct Vector2
     // check if any elements are infinity
     bool is_inf(void) const;
 
+    // check if all elements are zero
+    bool is_zero(void) const { return (fabsf(x) < FLT_EPSILON) && (fabsf(y) < FLT_EPSILON); }
+
     // zero the vector
     void zero()
     {
@@ -158,5 +159,3 @@ typedef Vector2<uint16_t>       Vector2ui;
 typedef Vector2<int32_t>        Vector2l;
 typedef Vector2<uint32_t>       Vector2ul;
 typedef Vector2<float>          Vector2f;
-
-#endif // VECTOR2_H

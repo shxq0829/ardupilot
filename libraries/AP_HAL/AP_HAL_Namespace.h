@@ -1,55 +1,7 @@
-
-#ifndef __AP_HAL_NAMESPACE_H__
-#define __AP_HAL_NAMESPACE_H__
-
-#include <AP_Vehicle_Type.h>
+#pragma once
 
 #include "string.h"
-#include "utility/FastDelegate.h"
-
-#define DELEGATE_FUNCTION_VOID_TYPEDEF(type)  typedef fastdelegate::FastDelegate0<void> type
-#define AP_HAL_CLASSPROC_VOID(classptr, func) fastdelegate::MakeDelegate(classptr, func)
-
-// macros to hide the details of delegate functions using FastDelegate
-#define AP_HAL_CLASSPROC(classptr, func) fastdelegate::MakeDelegate(classptr, func)
-#define AP_HAL_MEMBERPROC(func) AP_HAL_CLASSPROC(this, func)
-
-#define DELEGATE_FUNCTION0(rettype)          fastdelegate::FastDelegate0<rettype>
-#define DELEGATE_FUNCTION1(rettype, args...) fastdelegate::FastDelegate0<rettype, args>
-#define DELEGATE_FUNCTION2(rettype, args...) fastdelegate::FastDelegate0<rettype, args>
-
-#define DELEGATE_FUNCTION(rettype, ...) fastdelegate::FastDelegate0<rettype, ## __VA_ARGS__>
-
-#if APM_BUILD_FUNCTOR
 #include "utility/functor.h"
-
-// Also add the hacks for the delegate implementation. Here it's just an alias
-#define FUNCTOR_BIND_VOID(obj, func, rettype, ...) \
-    FUNCTOR_BIND(obj, func, rettype, ## __VA_ARGS__)
-
-#define FUNCTOR_TYPEDEF_VOID(name, rettype, ...) \
-    FUNCTOR_TYPEDEF(name, rettype, ## __VA_ARGS__)
-
-#else
-#define FUNCTOR_TYPEDEF(name, rettype, ...) \
-    typedef DELEGATE_FUNCTION(rettype, ## __VA_ARGS__) name
-
-#define FUNCTOR_DECLARE(name, rettype, ...) \
-    DELEGATE_FUNCTION(rettype, ## __VA_ARGS__) name
-
-#define FUNCTOR_BIND(obj, func, rettype, ...) \
-    AP_HAL_CLASSPROC(obj, func)
-
-#define FUNCTOR_BIND_MEMBER(func, rettype, ...) \
-    AP_HAL_MEMBERPROC(func)
-
-#define FUNCTOR_BIND_VOID(obj, func, rettype, ...) \
-    AP_HAL_CLASSPROC_VOID(obj, func)
-
-#define FUNCTOR_TYPEDEF_VOID(name, rettype, ...) \
-    DELEGATE_FUNCTION_VOID_TYPEDEF(name)
-
-#endif
 
 namespace AP_HAL {
 
@@ -58,8 +10,12 @@ namespace AP_HAL {
 
     /* Toplevel class names for drivers: */
     class UARTDriver;
+    class I2CDevice;
+    class I2CDeviceManager;
     class I2CDriver;
+    class Device;
 
+    class SPIDevice;
     class SPIDeviceDriver;
     class SPIDeviceManager;
 
@@ -72,6 +28,7 @@ namespace AP_HAL {
     class RCOutput;
     class Scheduler;
     class Semaphore;
+    class OpticalFlow;
     
     class Util;
 
@@ -92,7 +49,7 @@ namespace AP_HAL {
      * Global names for all of the existing SPI devices on all platforms.
      */
 
-    enum SPIDevice {
+    enum SPIDeviceType {
         SPIDevice_Dataflash         = 0,
         SPIDevice_ADS7844           = 1,
         SPIDevice_MS5611            = 2,
@@ -101,12 +58,13 @@ namespace AP_HAL {
         SPIDevice_ADNS3080_SPI3     = 5,
         SPIDevice_MPU9250           = 6,
         SPIDevice_L3GD20            = 7,
-        SPIDevice_LSM303D           = 8,        
+        SPIDevice_LSM303D           = 8,
         SPIDevice_LSM9DS0_AM        = 9,
         SPIDevice_LSM9DS0_G         = 10,
-        SPIDevice_Ublox             = 11
+        SPIDevice_Ublox             = 11,
+        SPIDevice_RASPIO            = 12
     };
 
+    // Must be implemented by the concrete HALs.
+    const HAL& get_HAL();
 }
-
-#endif // __AP_HAL_NAMESPACE_H__

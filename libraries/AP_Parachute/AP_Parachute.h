@@ -2,13 +2,11 @@
 
 /// @file	AP_Parachute.h
 /// @brief	Parachute release library
+#pragma once
 
-#ifndef AP_PARACHUTE_H
-#define AP_PARACHUTE_H
-
-#include <AP_Param.h>
-#include <AP_Common.h>
-#include <AP_Relay.h>
+#include <AP_Param/AP_Param.h>
+#include <AP_Common/AP_Common.h>
+#include <AP_Relay/AP_Relay.h>
 
 #define AP_PARACHUTE_TRIGGER_TYPE_RELAY_0       0
 #define AP_PARACHUTE_TRIGGER_TYPE_RELAY_1       1
@@ -49,6 +47,9 @@ public:
     /// release - release parachute
     void release();
 
+    /// released - true if the parachute has been released (or release is in progress)
+    bool released() const { return _released; }
+    
     /// update - shuts off the trigger should be called at about 10hz
     void update();
 
@@ -67,9 +68,8 @@ private:
     AP_Int16    _alt_min;       // min altitude the vehicle should have before parachute is released
 
     // internal variables
-    AP_Relay   &_relay;         // pointer to relay object from the base class Relay. The subclasses could be AP_Relay_APM1 or AP_Relay_APM2
+    AP_Relay   &_relay;         // pointer to relay object from the base class Relay.
     uint32_t    _release_time;  // system time that parachute is ordered to be released (actual release will happen 0.5 seconds later)
-    bool        _released;      // true if the parachute has been released
+    bool        _release_in_progress:1;  // true if the parachute release is in progress
+    bool        _released:1;    // true if the parachute has been released
 };
-
-#endif /* AP_PARACHUTE_H */

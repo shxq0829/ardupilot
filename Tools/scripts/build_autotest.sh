@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH=$HOME/.local/bin:/usr/local/bin:$HOME/prefix/bin:$HOME/APM/px4/gcc-arm-none-eabi-4_7-2014q2/bin:$PATH
+export PATH=$HOME/.local/bin:/usr/local/bin:$HOME/prefix/bin:$HOME/APM/px4/gcc-arm-none-eabi-4_9-2015q3/bin:$PATH
 export PYTHONUNBUFFERED=1
 export PYTHONPATH=$HOME/APM
 
@@ -40,7 +40,7 @@ lock_file() {
 
         if test -f "$lck" && kill -0 $pid 2> /dev/null; then
 	    LOCKAGE=$(($(date +%s) - $(stat -c '%Y' "build.lck")))
-	    test $LOCKAGE -gt 7200 && {
+	    test $LOCKAGE -gt 30000 && {
                 echo "old lock file $lck is valid for $pid with age $LOCKAGE seconds"
 	    }
             return 1
@@ -87,7 +87,12 @@ report_pull_failure() {
 
 oldhash=$(cd APM && git rev-parse HEAD)
 
+echo "Updating APM"
 pushd APM
+git checkout -f master
+git fetch origin
+git submodule update
+git reset --hard origin/master
 git pull || report_pull_failure
 git clean -f -f -x -d -d
 git tag autotest-$(date '+%Y-%m-%d-%H%M%S') -m "test tag `date`"
@@ -95,39 +100,6 @@ cp ../config.mk .
 popd
 
 rsync -a APM/Tools/autotest/web-firmware/ buildlogs/binaries/
-
-pushd PX4Firmware
-git fetch origin
-git reset --hard origin/master
-for v in ArduPlane ArduCopter APMrover2; do
-    git tag -d $v-beta || true
-    git tag -d $v-stable || true
-done
-git fetch origin --tags
-git show
-popd
-
-pushd PX4NuttX
-git fetch origin
-git reset --hard origin/master
-for v in ArduPlane ArduCopter APMrover2; do
-    git tag -d $v-beta || true
-    git tag -d $v-stable || true
-done
-git fetch origin --tags
-git show
-popd
-
-pushd uavcan
-git fetch origin
-git reset --hard origin/master
-for v in ArduPlane ArduCopter APMrover2; do
-    git tag -d $v-beta || true
-    git tag -d $v-stable || true
-done
-git fetch origin --tags
-git show
-popd
 
 echo "Updating pymavlink"
 pushd mavlink/pymavlink
@@ -148,7 +120,7 @@ popd
 githash=$(cd APM && git rev-parse HEAD)
 hdate=$(date +"%Y-%m-%d-%H:%m")
 
-for d in ArduPlane ArduCopter APMrover2; do
+for d in ArduPlane ArduCopter APMrover2 AntennaTracker; do
     pushd APM/$d
     rm -rf ../../buildlogs/$d.build
     (date && TMPDIR=../../buildlogs make) > ../../buildlogs/$d.txt 2>&1
@@ -177,6 +149,6 @@ killall -9 JSBSim || /bin/true
 # raise core limit
 ulimit -c 10000000
 
-timelimit 12000 APM/Tools/autotest/autotest.py --timeout=11500 > buildlogs/autotest-output.txt 2>&1
+timelimit 22000 APM/Tools/autotest/autotest.py --timeout=20000 > buildlogs/autotest-output.txt 2>&1
 
 ) >> build.log 2>&1

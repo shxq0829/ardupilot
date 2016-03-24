@@ -1,16 +1,16 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+#pragma once
 
 /// @file	AC_HELI_PID.h
 /// @brief	Helicopter Specific Rate PID algorithm, with EEPROM-backed storage of constants.
 
-#ifndef __AC_HELI_PID_H__
-#define __AC_HELI_PID_H__
-
-#include <AP_Common.h>
-#include <AP_Param.h>
+#include <AP_Common/AP_Common.h>
+#include <AP_Param/AP_Param.h>
 #include <stdlib.h>
 #include <math.h>
-#include <AC_PID.h>
+#include "AC_PID.h"
+
+#define AC_PID_LEAK_MIN     500.0  // Default I-term Leak Minimum
 
 /// @class	AC_HELI_PID
 /// @brief	Heli PID control class
@@ -37,10 +37,9 @@ public:
     
 private:
     AP_Float        _vff;
+    AP_Float        _leak_min;
     AP_Float        _aff;
 
     float           _last_requested_rate;       // Requested rate from last iteration, used to calculate rate change of requested rate
     
 };
-
-#endif // __AC_HELI_PID_H__

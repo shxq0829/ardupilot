@@ -17,10 +17,7 @@ MODULES		+= drivers/stm32/adc
 MODULES		+= drivers/stm32/tone_alarm
 MODULES		+= drivers/led
 MODULES		+= drivers/px4fmu
-MODULES		+= drivers/px4io
-MODULES		+= drivers/px4flow
 MODULES		+= drivers/rgbled
-MODULES		+= drivers/oreoled
 MODULES		+= drivers/mpu6000
 MODULES		+= drivers/hmc5883
 MODULES		+= drivers/ms5611
@@ -37,12 +34,12 @@ MODULES		+= drivers/ets_airspeed
 MODULES		+= drivers/meas_airspeed
 MODULES		+= drivers/mkblctrl
 MODULES		+= drivers/batt_smbus
+MODULES		+= drivers/irlock
 
 #
 # System commands
 #
 MODULES		+= systemcmds/bl_update
-MODULES		+= systemcmds/boardinfo
 MODULES		+= systemcmds/mixer
 MODULES		+= systemcmds/perf
 MODULES		+= systemcmds/pwm

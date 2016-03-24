@@ -2,25 +2,23 @@
 
 /// @file	AP_MotorsMatrix.h
 /// @brief	Motor control class for Matrixcopters
+#pragma once
 
-#ifndef __AP_MOTORS_MATRIX_H__
-#define __AP_MOTORS_MATRIX_H__
-
-#include <AP_Common.h>
-#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
-#include <RC_Channel.h>     // RC Channel Library
-#include "AP_Motors_Class.h"
+#include <AP_Common/AP_Common.h>
+#include <AP_Math/AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+#include <RC_Channel/RC_Channel.h>     // RC Channel Library
+#include "AP_MotorsMulticopter.h"
 
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CW   -1
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CCW   1
 
 /// @class      AP_MotorsMatrix
-class AP_MotorsMatrix : public AP_Motors {
+class AP_MotorsMatrix : public AP_MotorsMulticopter {
 public:
 
     /// Constructor
     AP_MotorsMatrix(uint16_t loop_rate, uint16_t speed_hz = AP_MOTORS_SPEED_DEFAULT) :
-        AP_Motors(loop_rate, speed_hz)
+        AP_MotorsMulticopter(loop_rate, speed_hz)
     {};
 
     // init
@@ -79,5 +77,3 @@ protected:
     float               _yaw_factor[AP_MOTORS_MAX_NUM_MOTORS];  // each motors contribution to yaw (normally 1 or -1)
     uint8_t             _test_order[AP_MOTORS_MAX_NUM_MOTORS];  // order of the motors in the test sequence
 };
-
-#endif  // AP_MOTORSMATRIX
